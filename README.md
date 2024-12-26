@@ -18,7 +18,7 @@ $C_t$--closing price on date $t$, $H_t$--highest price, $L_t$--lowest price, $n$
 |Stochastic %K| $K = 100\frac{C_t-L_1(n)}{H_n(n)-L_1(n)}$ <br> $L_1(n), H_n(n)$ are the highest high and lowest low values observed over the n-day period |
 |Stochastic %D| $D = SMA_3(K)$|
 |Price Rate of Change (ROC)| $100\frac{C_t}{C_{t-n}}$|
-|William's R%|$100\frac{H_n(n)-C_t}{H_n(n)-L_1(n)}$|
+|Williams R%|$100\frac{H_n(n)-C_t}{H_n(n)-L_1(n)}$|
 
 
 
