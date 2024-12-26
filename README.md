@@ -12,7 +12,7 @@ $C_t$--closing price on date $t$, $H_t$--highest price, $L_t$--lowest price, $n$
 |     Technical Indicator     |      Formula      |
 |:---------------------------:|:-----------------:|
 |Simple Moving Average (SMA)| $SMA_n=\frac{1}{n}\sum_{i=1}^tC_t$|
-|Enhanced Moving Average (EMA) | $EMA_n=\frac{2}{1+n}(C_t-EMA_{t-1})+EMA_{t-1}$|
+|Exponential Moving Average (EMA) | $EMA_n=\frac{2}{1+n}(C_t-EMA_{t-1})+EMA_{t-1}$|
 |Relative Strength Index (RSI) | $RSI=100-\frac{100}{1+\frac{AG}{AL}}$ <br>$AG, AL$--Avg. gain/loss over 14 day period|
 |Moving Average Convergence Divergence (MACD) | $MACD=EMA_{12}-EMA_{26}$|
 |Stochastic %K| $K = 100\frac{C_t-L_1(n)}{H_n(n)-L_1(n)}$ <br> $L_1(n), H_n(n)$ are the highest high and lowest low values observed over the n-day period |
