@@ -94,16 +94,13 @@ def get_t_day_ohlcs(roots: list, t: int, date: datetime) -> np.array:
                 continue
             r = data['response'][idx]
             curr_date = date + timedelta(days=i)
-            #print( root, r[16],  datetime.strftime(curr_date, '%Y%m%d'))
             if str(r[16]) != datetime.strftime(curr_date, '%Y%m%d'):
-                #print(f'No data for {curr_date}')
                 # Look for the next date in the same index
                 biweek.append([np.nan, np.nan, np.nan, np.nan, np.nan])
                 continue
             biweek.append([r[2], r[3], r[4], r[5], r[6]])
             # Look for the next date in the next index
             idx += 1
-            #print(f'Got data for {curr_date}')
         biweek = np.transpose(np.array(biweek))
 
         # convert to 5xt dataframe and ffill/bfill
@@ -116,8 +113,9 @@ def get_t_day_ohlcs(roots: list, t: int, date: datetime) -> np.array:
     stacked_ohlcs = np.stack(ohlcs, axis=0)
     # Convert n 5 x t arrays to t n x 5 arrays
     stacked_ohlcs = np.transpose(stacked_ohlcs, (2, 0, 1))
-    assert(np.shape(stacked_ohlcs) == (t, n, 5))  
-    return [np.squeeze(x) for x in np.vsplit(stacked_ohlcs, t)]
+    assert(np.shape(stacked_ohlcs) == (t, n, 5)) 
+    ohlcs = [np.squeeze(x) for x in np.vsplit(stacked_ohlcs, t)] 
+    return ohlcs
 
 
 
@@ -129,6 +127,8 @@ def get_data_from_period(roots: list, st: str, end: str) -> None:
     Date format: 'YYYYMMDD'
     '''
     ohlcs = []
+    feature_series = []
+    n = len(roots)
 
     BASE_URL = "http://127.0.0.1:25510/v2"
     url = BASE_URL + '/hist/stock/eod'
@@ -141,30 +141,51 @@ def get_data_from_period(roots: list, st: str, end: str) -> None:
     while curr_date <= end_date:
         curr_date_str = curr_date.strftime('%Y%m%d')
 
-        idx = curr_date-start_date
+        idx = (curr_date-start_date).days
         # Every 14 days, get 14 days of OHLC for each root
         # list of nx5 ndarrays
+        print(f'Getting data for {curr_date_str}, idx: {idx}')
         if idx % 14 == 0:
-            ohlcs.append(get_t_day_ohlcs(roots, t=14, date=curr_date))
-
+            period = get_t_day_ohlcs(roots, t=14, date=curr_date)
+            if period is None:
+                print('Error: Couldn\'t retrive data for this period')
+                return
+            ohlcs += period
 
         # Calculate indicators based on past 14 days for each root
-        # Cache simple average, average gain/loss, ema_12 and ema_26
-        # highest high, and lowest low
+        today = ohlcs[idx]
+        # Initialize cached values for first day
+        if idx == 0:
+            highs = [today[:,1]]
+            lows = [today[:,2]]
+        else:
+        # Calculate highest high and lowest low
+            highs = np.concatenate((highs, [today[:,1]]), axis=0)
+            highs = [np.max(highs, axis= 1)]
+            lows = np.concatenate((lows, [today[:,2]]), axis=0)
+            lows = [np.min(lows, axis= 1)]
+
+        # Calculate SMA, EMA, RSI, MACD, %K, %D, ROC, Williams R%
+        # Indicators are stored as -1 if there is not enough data (14 days for all except MACD which needs 26 days)
+        if idx <= 14:
+            features = np.full((len(roots), 9), -1)
+        else:
+
+            sma_14 = np.mean([ohlcs[i][:,3] for i in range(idx-13,idx+1)],axis=0)
+            #print(sma_14)
 
 
-
-        # Every 14 days, send 14xnx9 array to postgres
-        # (close, SMA, EMA, RSI, MACD, %K, %D, ROC, Williams R%)
-        if curr_date-start_date % 14 == 0:
+        feature_series.append(features)
+        # Every 14 days, send 14xnx13 array to postgres
+        # (open, high, low, close, volume, SMA, EMA, RSI, MACD, %K, %D, ROC, Williams R%)
+        if idx % 14 == 0:
             pass
+
+        curr_date += timedelta(days=1)
 
 
 
 
 
 if __name__ == '__main__':
-    ohlcs = get_t_day_ohlcs(['AAPL', 'MSFT'], 14, datetime.strptime('20210101', '%Y%m%d'))
-    for i in ohlcs:
-        #print(i)
-        pass
+    get_data_from_period(['AAPL', 'MSFT'], '20210101', '20210114')
