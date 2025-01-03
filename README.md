@@ -5,7 +5,7 @@ Predicting stock prices one day in advance following the methodology from 'Deep 
 ## Input Features
 
 
-During preprocessing, 8 technical indicators (TI) are calculated from historical OHLC stock price data to using a look-back period of 14 days. These TIs along with the closing price of the stock are used as the features for each example sequence in the training set.
+During preprocessing, 8 technical indicators (TI) are calculated from historical OHLC stock price data. Unless otherwise specified, TIs are calculated using a look-back period of 14 days. These TIs along with the closing price of the stock are used as the features for each example sequence in the training set.
 
 $C_t$--closing price on date $t$, $H_t$--highest price, $L_t$--lowest price, $n$--look-back period
 
