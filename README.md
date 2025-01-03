@@ -20,6 +20,9 @@ $C_t$--closing price on date $t$, $H_t$--highest price, $L_t$--lowest price, $n$
 |Price Rate of Change (ROC)| $100\frac{C_t-C_{t-n}}{C_{t-n}}$|
 |Williams R%|$100\frac{H_n(n)-C_t}{H_n(n)-L_1(n)}$|
 
+## Data Preprocessing
+
+All features are normalized to the scale \[0,1\].
 
 
 
