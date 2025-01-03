@@ -213,7 +213,7 @@ def get_data_from_period(roots: list, st: str, end: str) -> None:
     conn.close()
 
     
-    #Display features for root[0]
+    #Display features for roots[0]
     features_first_stock = np.array([features[0] for features in feature_series])
     feature_names = [
         'Open', 'High', 'Low', 'Close', 'Volume', 'SMA', 'EMA', 'RSI', 'MACD',
